@@ -7,9 +7,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,35 +17,21 @@ public class Util {
     private static Connection connection;
     private static SessionFactory sessionFactory;
 
+    private static final String url = "jdbc:mysql://localhost:3306/usersdb";
+    private static final String user = "root";
+    private static final String password = "htg1165";
+
     private Util() {
-    }
 
-    private static class UtilHolder {
-        public static final Util UTIL_INSTANCE = new Util();
-    }
-
-    public static Util getInstance() {
-        return UtilHolder.UTIL_INSTANCE;
     }
 
     public static Connection getConnection() {
-        Properties properties = getProps();
         try {
-            connection = DriverManager.getConnection(properties.getProperty("db.url"), properties.getProperty("db.user"), properties.getProperty("db.password"));
+            connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return connection;
-    }
-
-    private static Properties getProps() {
-        Properties properties = new Properties();
-        try (InputStream inputStream = new FileInputStream("src/main/resources/app.properities")) {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return properties;
     }
 
     public static SessionFactory getSessionFactory() {
@@ -69,8 +52,7 @@ public class Util {
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(User.class);
 
-                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                        .applySettings(configuration.getProperties()).build();
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
 
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             } catch (Exception e) {
